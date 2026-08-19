@@ -1,0 +1,16 @@
+name: criteo-experiment
+channels:
+  - defaults
+dependencies:
+  - python=3.11
+  - numpy=2.3
+  - pandas=2.3
+  - pyarrow=19.0
+  - scipy=1.16
+  - statsmodels=0.14
+  - scikit-learn=1.7
+  - matplotlib=3.10
+  - pytest=8.4
+  - pip
+  - pip:
+      - polars==1.43.2
