@@ -1032,7 +1032,7 @@ def _json_scalar(value: object) -> object:
 
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Run reproducible Criteo experiment analysis."
+        description="Run reproducible Criteo causal measurement analysis."
     )
     commands = parser.add_subparsers(dest="command", required=True)
     experiment = commands.add_parser(
@@ -1047,23 +1047,47 @@ def _build_parser() -> argparse.ArgumentParser:
         "--figures-dir", type=Path, default=DEFAULT_FIGURES_DIR
     )
     experiment.add_argument("--no-figures", action="store_true")
+    uplift = commands.add_parser(
+        "uplift", help="Fit and evaluate S Learner and T Learner baselines."
+    )
+    from criteo_experiment.uplift import DEFAULT_MODELING_SAMPLE_SIZE
+
+    uplift.add_argument("--data", type=Path, default=DEFAULT_PARQUET_PATH)
+    uplift.add_argument(
+        "--sample-size", type=int, default=DEFAULT_MODELING_SAMPLE_SIZE
+    )
+    uplift.add_argument("--seed", type=int, default=DEFAULT_RANDOM_SEED)
+    uplift.add_argument(
+        "--figures-dir", type=Path, default=DEFAULT_FIGURES_DIR
+    )
+    uplift.add_argument("--no-figures", action="store_true")
     return parser
 
 
 def main() -> None:
-    """Run the experiment audit command line interface."""
+    """Run the causal measurement command line interface."""
 
     parser = _build_parser()
     arguments = parser.parse_args()
     figures_directory = None if arguments.no_figures else arguments.figures_dir
+    from criteo_experiment.uplift import UpliftError, analyze_uplift
+
     try:
-        result = analyze_experiment(
-            arguments.data,
-            predictability_sample_size=arguments.sample_size,
-            random_seed=arguments.seed,
-            figures_directory=figures_directory,
-        )
-    except (ExperimentError, ValueError) as error:
+        if arguments.command == "experiment":
+            result = analyze_experiment(
+                arguments.data,
+                predictability_sample_size=arguments.sample_size,
+                random_seed=arguments.seed,
+                figures_directory=figures_directory,
+            )
+        else:
+            result = analyze_uplift(
+                arguments.data,
+                sample_size=arguments.sample_size,
+                random_seed=arguments.seed,
+                figures_directory=figures_directory,
+            )
+    except (ExperimentError, UpliftError, ValueError) as error:
         parser.exit(1, f"error: {error}\n")
     print(json.dumps(result, indent=2, sort_keys=True, allow_nan=False))
 

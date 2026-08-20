@@ -6,7 +6,7 @@ Advertising teams need to distinguish incremental customer behavior caused by a 
 
 ## Analytical objective
 
-This project measures average treatment effects from a randomized advertising experiment. Future work will estimate heterogeneous treatment effects and evaluate uplift models using conditional average treatment effects.
+This project measures average treatment effects from a randomized advertising experiment and evaluates baseline heterogeneous treatment effect rankings.
 
 ## Dataset
 
@@ -16,7 +16,7 @@ The `treatment` column records randomized treatment assignment, while `exposure`
 
 ## Analytical scope
 
-The current analysis covers data validation, randomization diagnostics, intention to treat effect estimation, and experiment sensitivity. Heterogeneous treatment effect estimation, uplift modeling, and model evaluation remain future work.
+The current analysis covers data validation, randomization diagnostics, intention to treat effect estimation, experiment sensitivity, and S Learner and T Learner uplift baselines. The uplift workflow evaluates targeting policies on an untouched test split with inverse propensity weighting for the documented 85% treatment allocation.
 
 ## Experiment results
 
@@ -34,6 +34,23 @@ Run the complete experiment analysis and regenerate its figures:
 ```bash
 criteo-analysis experiment
 ```
+
+Run the uplift baselines and their held out evaluation:
+
+```bash
+criteo-analysis uplift
+```
+
+## Uplift modeling results
+
+The uplift baseline uses a reproducible 2,000,000 row sample rather than all 13,979,592 rows because the sparse S Learner interaction design requires substantial local memory. The sample is split into 60% training, 20% validation, and 20% held out testing. Validation AUUC selects the regularization setting, and the table reports the untouched test results. Use `--sample-size` to select a different explicit sample size. Only `f0` through `f11` are model features; treatment assignment, exposure, visits, and conversions are excluded from the predictive covariates.
+
+| Outcome | Selected model | AUUC above random | Top 10% policy | Random at 10% | Top 20% policy | Random at 20% |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| Visit | T Learner | 458.71 | 649.4 | 105.0 | 861.1 | 210.1 |
+| Conversion | T Learner | 45.67 | 68.6 | 11.5 | 89.5 | 23.0 |
+
+All gain values are incremental outcomes per 100,000 population members. In this held out benchmark, the learned rankings concentrated more incremental outcomes than random targeting at the same population fractions. Visit ranking was more stable. Conversion was rare and many ranked deciles had few control events, so those subgroup differences are less stable. These results describe average ranking performance, not individual effects, and do not establish monetary return on investment.
 
 ## Local setup
 
