@@ -9,6 +9,7 @@ description = "Experimentation and causal measurement using the Criteo uplift da
 requires-python = ">=3.11,<3.12"
 
 [project.scripts]
+criteo-analysis = "criteo_experiment.experiment:main"
 criteo-data = "criteo_experiment.dataset:main"
 
 [tool.pytest.ini_options]

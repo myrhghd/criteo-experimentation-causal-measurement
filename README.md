@@ -6,7 +6,7 @@ Advertising teams need to distinguish incremental customer behavior caused by a 
 
 ## Analytical objective
 
-This project will measure average and individual treatment effects from a randomized advertising experiment. It will also evaluate whether uplift models can identify customers whose outcomes are most likely to change because of treatment.
+This project measures average treatment effects from a randomized advertising experiment. Future work will estimate heterogeneous treatment effects and evaluate uplift models using conditional average treatment effects.
 
 ## Dataset
 
@@ -16,7 +16,24 @@ The `treatment` column records randomized treatment assignment, while `exposure`
 
 ## Analytical scope
 
-The planned analysis covers data validation, randomization and experiment diagnostics, A/B test analysis, statistical power, causal treatment effect estimation, uplift modeling, and model evaluation.
+The current analysis covers data validation, randomization diagnostics, intention to treat effect estimation, and experiment sensitivity. Heterogeneous treatment effect estimation, uplift modeling, and model evaluation remain future work.
+
+## Experiment results
+
+The released benchmark contains 13,979,592 observations. Treatment assignment was 85.000013%, compared with the documented 85% design. The maximum absolute covariate standardized difference was 0.036, below the 0.10 practical threshold. A treatment prediction diagnostic produced a ROC AUC of 0.5046 and log loss of 0.4237, compared with baseline log loss of 0.4217.
+
+| Outcome | Control rate | Treatment rate | ITT effect | 95% CI | Relative lift | MDE 80% | MDE 90% |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Visit | 3.820% | 4.854% | +1.034 pp | [1.006, 1.063] pp | 27.1% | 0.040 pp | 0.047 pp |
+| Conversion | 0.194% | 0.309% | +0.115 pp | [0.108, 0.122] pp | 59.4% | 0.009 pp | 0.011 pp |
+
+The randomization diagnostics are consistent with the documented design. Treatment increased visits and conversions in the released benchmark population, and both effects exceed the corresponding minimum detectable effects. These estimates do not represent original Criteo campaign return on investment or production incrementality.
+
+Run the complete experiment analysis and regenerate its figures:
+
+```bash
+criteo-analysis experiment
+```
 
 ## Local setup
 
